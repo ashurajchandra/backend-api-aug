@@ -44,31 +44,68 @@ module.exports.getPosts = async(req, res) =>{
 
 module.exports.editPost = async(req,res)=>{
 
+  //need to check in case of wrong post id
+
   try{
     console.log("editing post with id", req.params.postId)
     const postId = req.params.postId;
 
     const index = posts.findIndex(post => post.id == Number(postId))  //-1 in case of non existence of post
-    if(index == -1){
-      return res.json(400).json({
+    console.log("index",index)
+
+    if(index !== -1){
+      posts[index].content = req.body.content;
+      posts[index].imageUrl = req.body.imageUrl;
+      posts[index].userName = req.body.userName;
+  
+  
+     return res.status(200).json({
+      message:'post updated!!',
+      data:posts[index]
+     })
+    }else{
+      return res.status(400).json({
         message: 'Please check post id.....seems in correct',
         data: []
       })
     }
 
-    posts[index].content = req.body.content;
-    posts[index].imageUrl = req.body.imageUrl;
-    posts[index].userName = req.body.userName;
 
-
-   return res.status(200).json({
-    message:'post updated!!',
-    data:posts[index]
-   })
   }catch(error){
     console.log("error ",error)
     return res.status(400).json({
       message:'error ocurred while editing post ',
+      data:[]
+    })
+  }
+}
+
+
+module.exports.deletePost = (req,res)=>{
+  try{
+    const postId = req.params.postId;
+
+    const postIndex = posts.findIndex(post=>post.id== Number(postId));
+   console.log("postIndex",postIndex)
+    if(postIndex != -1){
+      console.log("present in if block")
+     const deletedPost= posts.splice(postIndex ,1)
+     return res.status(200).json({
+      message:'post deleted',
+      data: deletedPost
+     })
+    }else{
+     console.log("else code")
+      return res.status(400).json({
+        message: 'Please check post id.....seems in correct',
+        data: []
+      })
+    }
+
+  }catch(error){
+    console.log("error ",error)
+    return res.status(400).json({
+      message:'error ocurred while deleting post ',
       data:[]
     })
   }

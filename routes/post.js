@@ -2,7 +2,7 @@ const express = require('express')
 
 const router = express.Router();
 
-const  {getPosts, createPost, editPost,checkingEditPost} = require('../controllers/post')
+const  {getPosts, createPost, editPost,deletePost} = require('../controllers/post')
 
 //read from body  req.body.content
 // read from params  req.params.postId
@@ -14,8 +14,10 @@ router.post('/createPost', createPost)
 //getPost
 router.get('/getPosts', getPosts)
 
-router.put('/editPost/:postId', editPost)
-//router.put('/editPost/:postId', checkingEditPost)
+router.put('/editPost/:postId', editPost);
+
+router.delete('/deletePost/:postId', deletePost)
+
 
 
 
