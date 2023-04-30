@@ -1,44 +1,62 @@
  const _ = require('lodash');
 const { post } = require('../routes/post');
+const Post = require('../modal/Posts');
 const posts = []
 
 // logic to create a post
+//CRUD
 module.exports.createPost = async(req, res) =>{
-     // const {content, imageUrl, userName} = req.body;
-     //console.log("req.body", req.body)
-      const content = req.body.content;
-      const imageUrl = req.body.imageUrl;
-      const userName = req.body.userName;
+  try{
+    //destructuring fields  from body
+    const {title, imageUrl , description} = req.body;
+    console.log("userId",req.body.userId)
 
-    //   if( content == '' | imageUrl =='' | userName ==''){
-        if(_.isEmpty(content) | _.isEmpty(imageUrl) |_.isEmpty(userName)){
-        return res.status(403).json({
-            message: 'please enter value in all the required fields',
-            data: []
-        })
-      }
+       //   if( content == '' | imageUrl =='' | userName ==''){
+        if(_.isEmpty(title)){
+          return res.status(403).json({
+              message: 'please enter value in all the required fields',
+              data: []
+          })
+        }
+     const createPost = await Post.create({title:title, imageUrl:imageUrl,description:description , user:req.body.userId })
+    //const createPost = await Post.create({title:req.body.title, imageUrl:req.body.imageUrl,description:req.body.description })
+    // const createPost = await Post.create(req.body)
+    console.log("createPost",createPost)
+    return res.status(201).json({
+      message:'post created ',
+      data: createPost
+    })
 
-      const post = {
-        id: Math.floor(Math.random()*1000 +1),
-        content: content,
-        imageUrl: imageUrl,
-        userName: userName
-      }
-
-     posts.push(post)
-      return res.status(200).json({
-        message:'post created ',
-        data: post
-      })
+  }catch(error){
+    console.log("error ",error)
+    return res.status(400).json({
+      message:'error ocurred while creating post ',
+      data:[]
+    })
+  }
 }
+  
+    
 
 //logic to fetch all posts
 module.exports.getPosts = async(req, res) =>{
-      
+   
+  try{
+    const posts = await Post.find().populate('user').exec()
+    
+    
     return res.status(200).json({
-        message:'Posts fetched successfully!',
-        data: posts
+      message:'Posts fetched successfully!',
+      data: posts
+  })
+  }catch(error){
+    console.log("error ",error)
+    return res.status(400).json({
+      message:'error ocurred while fetching post ',
+      data:[]
     })
+  }
+   
 }
 
 
@@ -49,26 +67,17 @@ module.exports.editPost = async(req,res)=>{
   try{
     console.log("editing post with id", req.params.postId)
     const postId = req.params.postId;
+    console.log("postId to edit", postId)
 
-    const index = posts.findIndex(post => post.id == Number(postId))  //-1 in case of non existence of post
-    console.log("index",index)
+    const post  = await Post.findByIdAndUpdate(postId, {$set:req.body})  //set takes whole body info replaces the old record
 
-    if(index !== -1){
-      posts[index].content = req.body.content;
-      posts[index].imageUrl = req.body.imageUrl;
-      posts[index].userName = req.body.userName;
+  console.log("updated post",post)
+  return res.status(200).json({
+    message:"post updated ",
+    data:post._id
+  })
   
-  
-     return res.status(200).json({
-      message:'post updated!!',
-      data:posts[index]
-     })
-    }else{
-      return res.status(400).json({
-        message: 'Please check post id.....seems in correct',
-        data: []
-      })
-    }
+   
 
 
   }catch(error){
@@ -81,26 +90,19 @@ module.exports.editPost = async(req,res)=>{
 }
 
 
-module.exports.deletePost = (req,res)=>{
+module.exports.deletePost = async(req,res)=>{
   try{
     const postId = req.params.postId;
 
-    const postIndex = posts.findIndex(post=>post.id== Number(postId));
-   console.log("postIndex",postIndex)
-    if(postIndex != -1){
-      console.log("present in if block")
-     const deletedPost= posts.splice(postIndex ,1)
-     return res.status(200).json({
-      message:'post deleted',
-      data: deletedPost
-     })
-    }else{
-     console.log("else code")
-      return res.status(400).json({
-        message: 'Please check post id.....seems in correct',
-        data: []
-      })
-    }
+    const deletedPost = await Post.findByIdAndDelete(postId);
+
+    return res.status(200).json({
+      message:"post deleted succesfully",
+      data:deletedPost._id
+    })
+  
+
+
 
   }catch(error){
     console.log("error ",error)

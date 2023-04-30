@@ -2,7 +2,9 @@ const express = require('express');
 
 const app =  express() ;
 const PORT  = 8000;
-const postRoute = require('./routes/post')
+const db = require("./utils/database");
+const postRoute = require('./routes/post');
+const userRoute = require('./routes/user')
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
@@ -16,6 +18,7 @@ app.get('/home', (req, res, next)=>{
 
 //
 app.use('/post', postRoute)
+app.use("/user",userRoute)
 
 
 
