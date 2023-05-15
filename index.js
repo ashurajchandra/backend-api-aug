@@ -1,13 +1,20 @@
 const express = require('express');
-
-const app =  express() ;
-const PORT  = 8000;
+var cors = require('cors')
+require('dotenv').config()
+const app = express() ;
+const PORT  =  process.env.PORT || 8000;
 const db = require("./utils/database");
 const postRoute = require('./routes/post');
 const userRoute = require('./routes/user')
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
+const corsOption = {
+   origin:'*',
+   method: ['POST', 'GET', 'PUT', 'DELETE']
+}
+
+app.use(cors(corsOption))
 app.get('/home', (req, res, next)=>{
 
      return res.status(200).json({
