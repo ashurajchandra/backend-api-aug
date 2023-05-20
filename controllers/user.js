@@ -33,7 +33,7 @@ module.exports.register = async(req, res)=>{
         //     })
         // }
         const salt = await  bcrypt.genSalt(saltRounds);
-        const hashPassword = await bcrypt.hash(password, salt);
+        const hashPassword = await bcrypt.hash(password,10 );
         const newUser = await User.create({name:name,password:hashPassword, confirmPassword:hashPassword, email:email, gender:gender })
         console.log("newUser",newUser)
        
@@ -75,6 +75,7 @@ module.exports.login = async(req, res)=>{
         data:{}
     })
    }
+   console.log("password",password)
    console.log("user.password",user.password)
    const comparePassword =await bcrypt.compare(password, user.password)
    console.log("comparePassword",comparePassword)
